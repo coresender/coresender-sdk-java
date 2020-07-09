@@ -23,136 +23,165 @@ import static org.slf4j.LoggerFactory.getLogger;
  */
 public class Coresender {
 
-  public static final String CORESENDER_SENDING_API_ID = "CORESENDER_SENDING_API_ID";
+    public static final String CORESENDER_SENDING_API_ID = "CORESENDER_SENDING_API_ID";
 
-  public static final String CORESENDER_SENDING_API_KEY = "CORESENDER_SENDING_API_KEY";
+    public static final String CORESENDER_SENDING_API_KEY = "CORESENDER_SENDING_API_KEY";
 
-  private static final Logger log = getLogger(Coresender.class);
+    private static final Logger log = getLogger(Coresender.class);
 
-  private static final ObjectMapper mapper = new ObjectMapper();
+    private static final ObjectMapper mapper = new ObjectMapper();
 
-  private static final String URL = "https://api.coresender.com/v1/send_email";
+    private static final String URL = "https://api.coresender.com/v1/send_email";
 
-  static {
-    mapper.setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE);
-    mapper.configure(JsonGenerator.Feature.IGNORE_UNKNOWN, true);
-    mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-    mapper.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
-  }
-
-  private final String accountId;
-
-  private final String apiKey;
-
-  private final kong.unirest.ObjectMapper unirestMapper = new JacksonObjectMapper(mapper);
-
-  private final List<Email> batch = new ArrayList<>();
-
-  private Coresender(final String accountId, final String apiKey) {
-    if (accountId == null) {
-      throw new IllegalArgumentException("accountId is marked non-null but is null");
-    }
-    if (apiKey == null) {
-      throw new IllegalArgumentException("apiKey is marked non-null but is null");
-    }
-    this.accountId = accountId;
-    this.apiKey = apiKey;
-  }
-
-  public static String prettyPrintResponse(SendEmailResponse response) {
-    return prettyPrint(response);
-  }
-
-  private static String prettyPrint(Object object) {
-    try {
-      return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(object);
-    } catch (JsonProcessingException exception) {
-      throw new IllegalArgumentException(exception.getCause());
-    }
-  }
-
-  public static CoresenderBuilder builder() {
-    return new CoresenderBuilder();
-  }
-
-  public void addToBatch(Email email) {
-    batch.add(email);
-  }
-
-  public HttpResponse<SendEmailResponse> sendSimpleEmail(Email email) {
-    return sendEmailBatch(List.of(email));
-  }
-
-  /**
-   * @return
-   */
-  public HttpResponse<SendEmailResponse> execute() {
-    HttpResponse<SendEmailResponse> response = sendEmailBatch(batch);
-    batch.clear();
-    return response;
-  }
-
-  private HttpResponse<SendEmailResponse> sendEmailBatch(Collection<Email> emails) {
-    log.debug("Sending emails: {}", prettyPrint(emails));
-    HttpResponse<SendEmailResponse> response = Unirest.post(URL)
-                                                      .basicAuth(accountId, apiKey)
-                                                      .body(emails)
-                                                      .withObjectMapper(unirestMapper)
-                                                      .asObject(SendEmailResponse.class);
-    log.debug("Got response: {}", prettyPrint(response.getBody()));
-    return response;
-  }
-
-  public static class CoresenderBuilder {
-
-    private String accountId;
-
-    private String apiKey;
-
-    CoresenderBuilder() {
+    static {
+        mapper.setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE);
+        mapper.configure(JsonGenerator.Feature.IGNORE_UNKNOWN, true);
+        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        mapper.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
     }
 
-    String getEnvironmentVariable(String variable) {
-      return System.getenv(variable);
-    }
+    private final String accountId;
 
-    public CoresenderBuilder accountId(final String accountId) {
-      if (accountId == null) {
-        throw new IllegalArgumentException("accountId is marked non-null but is null");
-      }
-      this.accountId = accountId;
-      return this;
-    }
+    private final String apiKey;
 
-    public CoresenderBuilder apiKey(final String apiKey) {
-      if (apiKey == null) {
-        throw new IllegalArgumentException("apiKey is marked non-null but is null");
-      }
-      this.apiKey = apiKey;
-      return this;
-    }
+    private final kong.unirest.ObjectMapper unirestMapper = new JacksonObjectMapper(mapper);
 
-    private void setupApiFromEnvironmentVariables() {
-      String accountId = getEnvironmentVariable(CORESENDER_SENDING_API_ID);
-      if (this.accountId == null && accountId != null) {
-        log.debug("Setting up account id from {} variable: {}", CORESENDER_SENDING_API_ID, accountId);
+    private final List<Email> batch = new ArrayList<>();
+
+    private Coresender(final String accountId, final String apiKey) {
+        if (accountId == null) {
+            throw new IllegalArgumentException("accountId is marked non-null but is null");
+        }
+        if (apiKey == null) {
+            throw new IllegalArgumentException("apiKey is marked non-null but is null");
+        }
         this.accountId = accountId;
-      }
-      String apiKey = getEnvironmentVariable(CORESENDER_SENDING_API_KEY);
-      if (this.apiKey == null && apiKey != null) {
-        log.debug("Setting api key from {} variable: {}", CORESENDER_SENDING_API_KEY, apiKey);
         this.apiKey = apiKey;
-      }
     }
 
-    public Coresender build() {
-      setupApiFromEnvironmentVariables();
-      return new Coresender(this.accountId, this.apiKey);
+    private static String prettyPrint(Object object) {
+        try {
+            return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(object);
+        } catch (JsonProcessingException exception) {
+            throw new IllegalArgumentException(exception.getCause());
+        }
     }
 
-    @Override
-    public String toString() {
-      return "Coresender.CoresenderBuilder(accountId=" + this.accountId + ", apiKey=" + this.apiKey + ")";
+    public static CoresenderBuilder builder() {
+        return new CoresenderBuilder();
     }
-  }
+
+    /**
+     * Adds email to a batch.
+     *
+     * @param email to be added to batch
+     */
+    public void addToBatch(Email email) {
+        batch.add(email);
+    }
+
+    /**
+     * Sends a single email.
+     *
+     * @param email to be sent
+     * @return message processing information
+     */
+    public HttpResponse<SendEmailResponse> sendSimpleEmail(Email email) {
+        return sendEmailBatch(List.of(email));
+    }
+
+    /**
+     * Sends emails batch.
+     *
+     * @return messages processing information
+     */
+    public HttpResponse<SendEmailResponse> execute() {
+        HttpResponse<SendEmailResponse> response = sendEmailBatch(batch);
+        batch.clear();
+        return response;
+    }
+
+    private HttpResponse<SendEmailResponse> sendEmailBatch(Collection<Email> emails) {
+        log.debug("Sending emails: {}", prettyPrint(emails));
+        HttpResponse<SendEmailResponse> response = Unirest.post(URL)
+                .basicAuth(accountId, apiKey)
+                .body(emails)
+                .withObjectMapper(unirestMapper)
+                .asObject(SendEmailResponse.class);
+        log.debug("Got response: {}", prettyPrint(response.getBody()));
+        return response;
+    }
+
+    /**
+     * Coresender builder for convenient setup.
+     */
+    public static class CoresenderBuilder {
+
+        private String accountId;
+
+        private String apiKey;
+
+        CoresenderBuilder() {
+        }
+
+        String getEnvironmentVariable(String variable) {
+            return System.getenv(variable);
+        }
+
+        /**
+         * Sets the account id.
+         *
+         * @param accountId account id
+         * @return builder object
+         */
+        public CoresenderBuilder accountId(final String accountId) {
+            if (accountId == null) {
+                throw new IllegalArgumentException("accountId is marked non-null but is null");
+            }
+            this.accountId = accountId;
+            return this;
+        }
+
+        /**
+         * Sets the API key.
+         *
+         * @param apiKey api key
+         * @return builder object
+         */
+        public CoresenderBuilder apiKey(final String apiKey) {
+            if (apiKey == null) {
+                throw new IllegalArgumentException("apiKey is marked non-null but is null");
+            }
+            this.apiKey = apiKey;
+            return this;
+        }
+
+        private void setupApiFromEnvironmentVariables() {
+            String accountId = getEnvironmentVariable(CORESENDER_SENDING_API_ID);
+            if (this.accountId == null && accountId != null) {
+                log.debug("Setting up account id from {} variable: {}", CORESENDER_SENDING_API_ID, accountId);
+                this.accountId = accountId;
+            }
+            String apiKey = getEnvironmentVariable(CORESENDER_SENDING_API_KEY);
+            if (this.apiKey == null && apiKey != null) {
+                log.debug("Setting api key from {} variable: {}", CORESENDER_SENDING_API_KEY, apiKey);
+                this.apiKey = apiKey;
+            }
+        }
+
+        /**
+         * Creates CoresenderBuilder instance.
+         *
+         * @return CoresenderBuilder object
+         */
+        public Coresender build() {
+            setupApiFromEnvironmentVariables();
+            return new Coresender(this.accountId, this.apiKey);
+        }
+
+        @Override
+        public String toString() {
+            return "Coresender.CoresenderBuilder(accountId=" + this.accountId + ", apiKey=" + this.apiKey + ")";
+        }
+    }
 }
