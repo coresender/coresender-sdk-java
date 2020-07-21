@@ -140,8 +140,8 @@ public class SendEmailResponse {
 
         @Override
         public String toString() {
-            return "SendEmailResponse.Error(code=" + this.getCode() + ", description=" + this.getDescription() + ", field=" + this.getField() + ", value=" + this.getValue() + ", errors=" + this
-                    .getErrors() + ")";
+            return "SendEmailResponse.Error(code=" + this.getCode() + ", description=" + this.getDescription() + ", field=" + this.getField() + ", value=" + this
+                    .getValue() + ", errors=" + this.getErrors() + ")";
         }
     }
 

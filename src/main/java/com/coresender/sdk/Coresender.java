@@ -2,6 +2,7 @@ package com.coresender.sdk;
 
 import com.coresender.sdk.data.Email;
 import com.coresender.sdk.data.SendEmailResponse;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -38,6 +39,7 @@ public class Coresender {
         mapper.configure(JsonGenerator.Feature.IGNORE_UNKNOWN, true);
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         mapper.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
+        mapper.setSerializationInclusion(Include.NON_NULL);
     }
 
     private final String accountId;
@@ -105,8 +107,8 @@ public class Coresender {
         log.debug("Sending emails: {}", prettyPrint(emails));
         HttpResponse<SendEmailResponse> response = Unirest.post(URL)
                 .basicAuth(accountId, apiKey)
-                .body(emails)
                 .withObjectMapper(unirestMapper)
+                .body(emails)
                 .asObject(SendEmailResponse.class);
         log.debug("Got response: {}", prettyPrint(response.getBody()));
         return response;

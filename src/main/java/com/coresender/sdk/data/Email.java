@@ -10,17 +10,26 @@ public class Email {
     private final Address from;
 
     private final List<Address> to;
+
     private final String subject;
+
     private final String customId;
 
     private final boolean customIdUnique;
+
     private final boolean trackOpens;
+
     private final boolean trackClicks;
+
     private final String listId;
+
     private final String listUnsubscribe;
+
     private final Body body;
 
-    private Email(final Body body, final Address from, final List<Address> to, final String subject, final String customId, final boolean customIdUnique, final boolean trackOpens, final boolean trackClicks, final String listId, final String listUnsubscribe) {
+    private final Address replyTo;
+
+    private Email(final Body body, final Address from, final List<Address> to, final String subject, final String customId, final boolean customIdUnique, final boolean trackOpens, final boolean trackClicks, final String listId, final String listUnsubscribe, Address replyTo) {
         if (from == null) {
             throw new IllegalArgumentException("from is marked non-null but is null");
         }
@@ -40,6 +49,7 @@ public class Email {
         this.trackClicks = trackClicks;
         this.listId = listId;
         this.listUnsubscribe = listUnsubscribe;
+        this.replyTo = replyTo;
     }
 
     /**
@@ -49,6 +59,13 @@ public class Email {
      */
     public static EmailBuilder builder() {
         return new EmailBuilder();
+    }
+
+    /**
+     * @return reply's to address
+     */
+    public Address getReplyTo() {
+        return replyTo;
     }
 
     /**
@@ -118,7 +135,7 @@ public class Email {
     public String toString() {
         return "Email(body=" + this.getBody() + ", from=" + this.getFrom() + ", to=" + this.getTo() + ", bodyText=" + this.getBodyText() + ", bodyHtml=" + this.getBodyHtml() + ", subject=" + this
                 .getSubject() + ", customId=" + this.getCustomId() + ", customIdUnique=" + this.isCustomIdUnique() + ", trackOpens=" + this.isTrackOpens() + ", trackClicks=" + this
-                .isTrackClicks() + ", listId=" + this.getListId() + ", listUnsubscribe=" + this.getListUnsubscribe() + ")";
+                .isTrackClicks() + ", listId=" + this.getListId() + ", listUnsubscribe=" + this.getListUnsubscribe() + ", replyTo=" + this.replyTo + ")";
     }
 
     /**
@@ -131,14 +148,14 @@ public class Email {
     /**
      * @return text version of message content
      */
-    public String getBodyText() {
+    private String getBodyText() {
         return this.body.text;
     }
 
     /**
      * @return html version of message content
      */
-    public String getBodyHtml() {
+    private String getBodyHtml() {
         return this.body.html;
     }
 
@@ -154,6 +171,10 @@ public class Email {
         private Address(final String email, final String name) {
             this.email = email;
             this.name = name;
+        }
+
+        public static Address of(String email) {
+            return new Address(email, null);
         }
 
         public static Address of(String email, String name) {
@@ -230,6 +251,8 @@ public class Email {
         private String listId;
 
         private String listUnsubscribe;
+
+        private Address replyTo;
 
         EmailBuilder() {
         }
@@ -365,18 +388,32 @@ public class Email {
         }
 
         /**
+         * Sets reply to.
+         *
+         * @param replyTo address
+         * @return builder object
+         */
+        public EmailBuilder replyTo(final Address replyTo) {
+            if (replyTo == null) {
+                throw new IllegalArgumentException("replyTo is marked non-null but is null");
+            }
+            this.replyTo = replyTo;
+            return this;
+        }
+
+        /**
          * Creates Email instance.
          *
          * @return email object
          */
         public Email build() {
             return new Email(this.body, this.from, this.to, this.subject, this.customId, this.customIdUnique, this.trackOpens, this.trackClicks, this.listId,
-                    this.listUnsubscribe);
+                             this.listUnsubscribe, this.replyTo);
         }
 
         @Override
         public String toString() {
-            return "Email.EmailBuilder(body=" + this.body + ", from=" + this.from + ", to=" + this.to + ", bodyText=" + this.body.text + ", bodyHtml=" + this.body.html + ", subject=" + this.subject + ", customId=" + this.customId + ", customIdUnique=" + this.customIdUnique + ", trackOpens=" + this.trackOpens + ", trackClicks=" + this.trackClicks + ", listId=" + this.listId + ", listUnsubscribe=" + this.listUnsubscribe + ")";
+            return "Email.EmailBuilder(body=" + this.body + ", from=" + this.from + ", to=" + this.to + ", bodyText=" + this.body.text + ", bodyHtml=" + this.body.html + ", subject=" + this.subject + ", customId=" + this.customId + ", customIdUnique=" + this.customIdUnique + ", trackOpens=" + this.trackOpens + ", trackClicks=" + this.trackClicks + ", listId=" + this.listId + ", listUnsubscribe=" + this.listUnsubscribe + ", replyTo=" + this.replyTo + ")";
         }
     }
 }
