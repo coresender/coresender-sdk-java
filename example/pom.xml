@@ -16,7 +16,7 @@
     <dependencies>
         <dependency>
             <groupId>com.coresender</groupId>
-            <artifactId>sdk-java</artifactId>
+            <artifactId>coresender-sdk-java</artifactId>
             <version>1.0.0</version>
         </dependency>
         <!-- Needed if you want to debug org.apache.httpcomponents -->
