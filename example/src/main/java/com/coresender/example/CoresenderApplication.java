@@ -16,11 +16,11 @@ public class CoresenderApplication {
     private static final Logger log = getLogger(CoresenderApplication.class);
 
     public static void main(String... args) {
-        Coresender coreSender = Coresender.builder().accountId("<<INSERT SENDING ACCOUNT ID>>").apiKey("<<INSERT SENDING ACCOUNT API KEY>>").build();
+        Coresender coresender = Coresender.builder().accountId("<<INSERT SENDING ACCOUNT ID>>").apiKey("<<INSERT SENDING ACCOUNT API KEY>>").build();
 
-        HttpResponse<SendEmailResponse> response = coreSender.sendSimpleEmail(builder().from(Address.of("jean.luc@example.com", "Jean-Luc Picard"))
+        HttpResponse<SendEmailResponse> response = coresender.sendSimpleEmail(builder().from(Address.of("jean.luc@example.com", "Jean-Luc Picard"))
                                                                                        .to(List.of(Address.of("geordi@example.com", "Geordi La Forge")))
-                                                                                       .replyTo(Address.of("info@enterprise.com"))
+                                                                                       .replyTo(List.of(Address.of("info@enterprise.com")))
                                                                                        .subject("I need engines")
                                                                                        .bodyText("Geordi, I need engines, now!")
                                                                                        .bodyHtml("<p>Geordi, I need engines, <strong>now!</strong></p>")
@@ -37,9 +37,9 @@ public class CoresenderApplication {
             response.getBody().getData().forEach(data -> log.info(data.toString()));
         }
 
-        coreSender.addToBatch(builder().from(Address.of("gandalf@middleearth.com", "Gandalf The Grey"))
+        coresender.addToBatch(builder().from(Address.of("gandalf@middleearth.com", "Gandalf The Grey"))
                                        .to(List.of(Address.of("balrog.of.moria@example.com", "Balrog")))
-                                       .replyTo(Address.of("info@orthanc.com", "Orthanc Tower"))
+                                       .replyTo(List.of(Address.of("info@orthanc.com", "Orthanc Tower")))
                                        .subject("Passage problems")
                                        .bodyText("You shall not pass!")
                                        .bodyHtml("<p>I'm sorry but you shall <strong>not pass!</strong></p>")
@@ -51,7 +51,7 @@ public class CoresenderApplication {
                                        .listId("no list")
                                        .build());
 
-        coreSender.addToBatch(builder().from(Address.of("saruman@middleearth.com", "Saruman"))
+        coresender.addToBatch(builder().from(Address.of("saruman@middleearth.com", "Saruman"))
                                        .to(List.of(Address.of("dark.lord@example.com", "Sauron")))
                                        .subject("Agenda for the next weeks")
                                        .bodyText("Uruk-hais are ready my Lord, what are the orders?")
@@ -65,7 +65,7 @@ public class CoresenderApplication {
                                        .build());
 
 
-        response = coreSender.execute();
+        response = coresender.execute();
 
         if (response.getBody() == null) {
             log.info("{}\n{}", response.getStatusText(), response.getParsingError());

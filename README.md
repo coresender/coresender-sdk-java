@@ -29,14 +29,14 @@ import com.coresender.sdk.data.Email;
 
 import java.util.List;
 
-class Example1 {
+public class Example1 {
 
   public static void main(String[] args) {
-    Coresender coreSender = Coresender.builder().accountId("<<INSERT SENDING ACCOUNT ID>>").apiKey("<<INSERT SENDING ACCOUNT API KEY>>").build();
-    coreSender.sendSimpleEmail(Email.builder()
+    Coresender coresender = Coresender.builder().accountId("<<INSERT SENDING ACCOUNT ID>>").apiKey("<<INSERT SENDING ACCOUNT API KEY>>").build();
+    coresender.sendSimpleEmail(Email.builder()
                                     .from(Email.Address.of("jean.luc@example.com", "Jean-Luc Picard"))
                                     .to(List.of(Email.Address.of("geordi@example.com", "Geordi La Forge")))
-                                    .replyTo(Address.of("info@enterprise.com"))
+                                    .replyTo(List.of(Address.of("info@enterprise.com")))
                                     .subject("I need engines")
                                     .bodyText("Geordi, I need engines, now!")
                                     .bodyHtml("<p>Geordi, I need engines, <strong>now!</strong></p>")
@@ -61,12 +61,12 @@ import java.util.List;
 import static com.coresender.sdk.data.Email.Address;
 import static com.coresender.sdk.data.Email.builder;
 
-class Example2 {
+public class Example2 {
 
   public static void main(String[] args) {
-    Coresender coreSender = Coresender.builder().accountId("<<INSERT SENDING ACCOUNT ID>>").apiKey("<<INSERT SENDING ACCOUNT API KEY>>").build();
+    Coresender coresender = Coresender.builder().accountId("<<INSERT SENDING ACCOUNT ID>>").apiKey("<<INSERT SENDING ACCOUNT API KEY>>").build();
 
-    coreSender.addToBatch(builder()
+    coresender.addToBatch(builder()
                                .from(Address.of("gandalf@middleearth.com", "Gandalf The Grey"))
                                .to(List.of(Address.of("balrog.of.moria@example.com", "Balrog")))
                                .subject("Passage problems")
@@ -80,10 +80,10 @@ class Example2 {
                                .listId("no list")
                                .build());
 
-    coreSender.addToBatch(builder()
+    coresender.addToBatch(builder()
                                .from(Address.of("saruman@middleearth.com", "Saruman"))
                                .to(List.of(Address.of("dark.lord@example.com", "Sauron")))
-                               .replyTo(Address.of("info@orthanc.com", "Orthanc Tower"))
+                               .replyTo(List.of(Address.of("info@orthanc.com", "Orthanc Tower")))
                                .subject("Agenda for the next weeks")
                                .bodyText("Uruk-hais are ready my Lord, what are the orders?")
                                .bodyHtml("<p>Uruk-hais are ready my Lord, what are the orders?</p>")
@@ -94,7 +94,7 @@ class Example2 {
                                .listUnsubscribe("https://example.com/unsubscribe/abcd-1234")
                                .listId("no list")
                                .build());
-    coreSender.execute();
+    coresender.execute();
   }
 }
 ```
@@ -108,11 +108,11 @@ import com.coresender.sdk.Coresender;
 import com.coresender.sdk.data.SendEmailResponse;
 import kong.unirest.HttpResponse;
 
-class Example3 {
+public class Example3 {
 
   public static void main(String[] args) {
-    Coresender coreSender = Coresender.builder().accountId("<<INSERT SENDING ACCOUNT ID>>").apiKey("<<INSERT SENDING ACCOUNT API KEY>>").build();
-    HttpResponse<SendEmailResponse> response = coreSender.execute();
+    Coresender coresender = Coresender.builder().accountId("<<INSERT SENDING ACCOUNT ID>>").apiKey("<<INSERT SENDING ACCOUNT API KEY>>").build();
+    HttpResponse<SendEmailResponse> response = coresender.execute();
 
     if (response.getBody() == null) {
       log.info("{}\n{}", response.getStatusText(), response.getParsingError());

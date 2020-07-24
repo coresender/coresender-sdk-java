@@ -27,9 +27,9 @@ public class Email {
 
     private final Body body;
 
-    private final Address replyTo;
+    private final List<Address> replyTo;
 
-    private Email(final Body body, final Address from, final List<Address> to, final String subject, final String customId, final boolean customIdUnique, final boolean trackOpens, final boolean trackClicks, final String listId, final String listUnsubscribe, Address replyTo) {
+    private Email(final Body body, final Address from, final List<Address> to, final String subject, final String customId, final boolean customIdUnique, final boolean trackOpens, final boolean trackClicks, final String listId, final String listUnsubscribe, final List<Address> replyTo) {
         if (from == null) {
             throw new IllegalArgumentException("from is marked non-null but is null");
         }
@@ -62,9 +62,9 @@ public class Email {
     }
 
     /**
-     * @return reply's to address
+     * @return reply's to addresses
      */
-    public Address getReplyTo() {
+    public List<Address> getReplyTo() {
         return replyTo;
     }
 
@@ -252,7 +252,7 @@ public class Email {
 
         private String listUnsubscribe;
 
-        private Address replyTo;
+        private List<Address> replyTo;
 
         EmailBuilder() {
         }
@@ -393,7 +393,7 @@ public class Email {
          * @param replyTo address
          * @return builder object
          */
-        public EmailBuilder replyTo(final Address replyTo) {
+        public EmailBuilder replyTo(final List<Address> replyTo) {
             if (replyTo == null) {
                 throw new IllegalArgumentException("replyTo is marked non-null but is null");
             }

@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.coresender</groupId>
     <artifactId>sdk-java-example</artifactId>
-    <version>0.0.1</version>
+    <version>1.0.0</version>
     <properties>
         <java.version>11</java.version>
         <maven.compiler.target>11</maven.compiler.target>
@@ -17,7 +17,7 @@
         <dependency>
             <groupId>com.coresender</groupId>
             <artifactId>sdk-java</artifactId>
-            <version>0.0.1</version>
+            <version>1.0.0</version>
         </dependency>
         <!-- Needed if you want to debug org.apache.httpcomponents -->
         <dependency>
